@@ -70,12 +70,10 @@
     
     //navBarScrollView
     self.sliderViewWidth = self.pageViewControllers.count > 5 ? self.view.frame.size.width / 5 -  4: self.view.frame.size.width/self.pageViewControllers.count - 4;
-    NSLog(@"%f", self.sliderViewWidth);
     
-    self.navBarScrollView.frame = self.topNavBar.bounds;
-    NSLog(@"%ld", self.pageViewControllers.count);
+    //navBarScrollView
+    self.navBarScrollView.frame = CGRectMake(0, 0, self.view.frame.size.width, TOP_NAVBAR_HEIGHT);
     self.navBarScrollView.contentSize = CGSizeMake(self.pageViewControllers.count*(self.sliderViewWidth + 4), TOP_NAVBAR_HEIGHT);
-    NSLog(@"%f", self.navBarScrollView.contentSize.width);
     [self addSegmentButtonsForNavBarScrollView];
     
     //sliderView
@@ -159,7 +157,16 @@
 }
 
 - (void)setupNavBarScrollViewContentOffsetYByPageIndex:(NSInteger)pageIndex {
+    if (self.pageViewControllers.count <= 5) {
+        return;
+    }
     
+    float contentOffsetX = self.navBarScrollView.contentOffset.x;
+    if (contentOffsetX > self.sliderView.frame.origin.x) {
+        [self.navBarScrollView setContentOffset:CGPointMake(contentOffsetX - self.sliderViewWidth - 4, 0) animated:YES];
+    } else if ((contentOffsetX + self.view.frame.size.width) < (self.sliderView.frame.size.width + self.sliderView.frame.origin.x)) {
+        [self.navBarScrollView setContentOffset:CGPointMake(contentOffsetX + self.sliderViewWidth + 4, 0) animated:YES];
+    }
 }
 
 #pragma mark - UIScrollView Delegate
@@ -170,7 +177,9 @@
         
         NSInteger coorX = (self.sliderView.frame.size.width + 4)*self.currentPageIndex + 2;
         
-        self.sliderView.frame = CGRectMake(coorX-xFromCenter/[self.pageViewControllers count], self.sliderView.frame.origin.y, self.sliderView.frame.size.width, self.sliderView.frame.size.height);
+        NSInteger averageCount = self.pageViewControllers.count > 5 ? 5 : self.pageViewControllers.count;
+        
+        self.sliderView.frame = CGRectMake(coorX-xFromCenter/averageCount, self.sliderView.frame.origin.y, self.sliderView.frame.size.width, self.sliderView.frame.size.height);
     }
 }
 
