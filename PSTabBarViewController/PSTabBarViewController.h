@@ -16,4 +16,6 @@
 
 @property (nonatomic, copy) UIColor *sliderViewTiniColor;
 
+@property (nonatomic, copy) UIColor *titleSelectedColor;
+
 @end

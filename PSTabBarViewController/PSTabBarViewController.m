@@ -161,11 +161,13 @@
         return;
     }
     
-    float contentOffsetX = self.navBarScrollView.contentOffset.x;
-    if (contentOffsetX > self.sliderView.frame.origin.x) {
-        [self.navBarScrollView setContentOffset:CGPointMake(contentOffsetX - self.sliderViewWidth - 4, 0) animated:YES];
-    } else if ((contentOffsetX + self.view.frame.size.width) < (self.sliderView.frame.size.width + self.sliderView.frame.origin.x)) {
-        [self.navBarScrollView setContentOffset:CGPointMake(contentOffsetX + self.sliderViewWidth + 4, 0) animated:YES];
+    float contentX = self.navBarScrollView.contentOffset.x;
+    float sliderOriginX = self.sliderView.frame.origin.x;
+    
+    if (contentX > sliderOriginX + 2) {
+        [self.navBarScrollView setContentOffset:CGPointMake((self.sliderViewWidth + 4) * pageIndex, 0) animated:YES];
+    } else if (contentX < sliderOriginX && contentX + self.view.frame.size.width < self.sliderViewWidth + sliderOriginX) {
+        [self.navBarScrollView setContentOffset:CGPointMake((pageIndex - 5 + 1)*(self.sliderViewWidth + 4), 0) animated:YES];
     }
 }
 
@@ -217,6 +219,8 @@
 - (void)setupSliderViewWithPageIndex:(NSInteger)pageIndex {
     [UIView animateWithDuration:0.25 animations:^{
         self.sliderView.frame = CGRectMake((self.sliderViewWidth + 4)*pageIndex + 2, TOP_NAVBAR_HEIGHT - SLIDER_VIEW_HEIGHT, self.sliderViewWidth, SLIDER_VIEW_HEIGHT);
+    } completion:^(BOOL finished) {
+        [self setupNavBarScrollViewContentOffsetYByPageIndex:pageIndex];
     }];
 }
 
