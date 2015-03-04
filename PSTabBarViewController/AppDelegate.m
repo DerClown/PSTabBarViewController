@@ -47,8 +47,47 @@
     
     self.window.rootViewController = navigationController;
     
+    [self onCheckVersion];
+    
     [_window makeKeyAndVisible];
     return YES;
+}
+
+- (void)onCheckVersion {
+    NSString *URL = @"http://itunes.apple.com/lookup?id=你的应用程序的ID";
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:[NSURL URLWithString:URL]];
+    [request setHTTPMethod:@"POST"];
+    NSHTTPURLResponse *urlResponse = nil;
+    NSError *error = nil;
+    NSData *recervedData = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&error];
+    
+    NSString *results = [[NSString alloc] initWithBytes:[recervedData bytes] length:[recervedData length] encoding:NSUTF8StringEncoding];
+    /*SBJSON *json = [[SBJSON alloc] init];
+    NSDictionary *dic = [json objectWithString:results error:nil];*/
+    NSDictionary *dic;
+    NSAssert(dic, @"Should be parser post result to dic.");
+    NSArray *infoArray = [dic objectForKey:@"results"];
+    if ([infoArray count]) {
+        NSDictionary *releaseInfo = [infoArray objectAtIndex:0];
+        NSString *lastVersion = [releaseInfo objectForKey:@"version"];
+        
+        if (![lastVersion isEqualToString:systemVersion()]) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"更新" message:@"有新的版本更新，是否前往更新？" delegate:self cancelButtonTitle:@"关闭" otherButtonTitles:@"更新", nil];
+            alert.tag = 10000;
+            [alert show];
+        } else {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"更新" message:@"此版本为最新版本" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            alert.tag = 10001;
+            [alert show];
+        }
+    }
+}
+
+NSString *systemVersion() {
+    NSDictionary *infoDic = [[NSBundle mainBundle] infoDictionary];
+    NSString *currentVersion = [infoDic objectForKey:@"CFBundleVersion"];
+    return currentVersion;
 }
 
 @end
